@@ -16,6 +16,7 @@ const AppContainer = () => {
             fontFamily: [
                 "Fira code",
                 "Exo",
+                "Trebuchet MS",
                 "Roboto",
                 "sans-serif"
             ].join(",")

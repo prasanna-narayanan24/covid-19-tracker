@@ -2,36 +2,35 @@ import React, { useEffect, useState } from "react";
 import API from "../../utils/RequestUtil";
 import ApexChartComponent from "../../common/component/ApexChartComponent";
 import { parseDate } from "../../utils/CommonUtils";
-import CustomSuspense from "../../common/component/CustomSuspense";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, Paper } from "@material-ui/core";
 
 const DataVisualization = (props) => {
-  const [seriesData, setSeriesData] = useState([]);
+  const [seriesData, setSeriesData] = useState(null);
   const [options, setOptions] = useState({});
 
   useEffect(() => {
     const onSuccess = (res) => {
-      const dailyData = res;
-      let xAxis = { categories: [] };
-
-      xAxis.categories = Object.keys(dailyData["cases"]).map(k => parseDate(k, false));
+      const dailyData = res || [];
+      const spread = 4;
 
       let chartDataMap = {};
       Object.keys(dailyData).forEach((objectKey) => {
-        chartDataMap[objectKey] = Object.values(dailyData[objectKey]);
+        const obj = dailyData[objectKey]
+        const outPutData = Object.entries(obj).reverse().filter((_, i) => i % spread === 0).reverse()
+        chartDataMap[objectKey] = outPutData.map(k => ({ x: parseDate(k[0], false), y: k[1] }));
       });
 
       const chartData = [
         {
-          name: "confirmed",
+          name: "CONFIRMED",
           data: chartDataMap["cases"],
         },
         {
-          name: "recovered",
+          name: "RECOVERED",
           data: chartDataMap["recovered"],
         },
         {
-          name: "deaths",
+          name: "DEATHS",
           data: chartDataMap["deaths"],
         },
       ];
@@ -43,7 +42,11 @@ const DataVisualization = (props) => {
         stroke: {
           curve: "smooth",
         },
-        xaxis: { ...xAxis },
+        xaxis: {
+          labels: {
+            format: "dd/MM"
+          }
+        },
       };
 
       setSeriesData(chartData);
@@ -58,13 +61,7 @@ const DataVisualization = (props) => {
   }, []);
 
   return (
-    <CustomSuspense
-      dataToValidate={seriesData}
-      fallBackComponent={CircularProgress}
-      validationCriteria={CustomSuspense.vc.NOT_EMPTY}
-    >
-      <ApexChartComponent options={options} series={seriesData} />
-    </CustomSuspense>
+    seriesData ? <Paper><ApexChartComponent options={options} series={seriesData} /></Paper> : <CircularProgress />
   );
 };
 

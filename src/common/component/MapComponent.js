@@ -1,43 +1,36 @@
 import React, { memo } from "react";
 import {
-    ZoomableGroup,
     ComposableMap,
     Geographies,
     Geography,
     Graticule
 } from "react-simple-maps";
 import { colors } from "@material-ui/core";
+import Proptypes from "prop-types";
+import { Alert, AlertTitle } from '@material-ui/lab';
+import jsonData from "../data/world-map.json";
 
-const geoUrl =
-    "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
-
-// const rounded = num => {
-//     if (num > 1000000000) {
-//         return Math.round(num / 100000000) / 10 + "Bn";
-//     } else if (num > 1000000) {
-//         return Math.round(num / 100000) / 10 + "M";
-//     } else {
-//         return Math.round(num / 100) / 10 + "K";
-//     }
-// };
+// BROKEN
+// const geoUrl =
+//     "https://raw.githubusercontent.com/zcreativelabs/react-simple-maps/master/topojson-maps/world-110m.json";
 
 const MapChart = props => {
-    const { highlightOptions, onHover } = props;
+    const { highlightOptions, onHover, onCountryClick } = props;
 
     const getFillColor = properties => {
-        if(highlightOptions[properties.ISO_A3]) {
+        if (highlightOptions[properties.ISO_A3]) {
             return colors.red[highlightOptions[properties.ISO_A3]['colorAlpha']];
         } else {
             return colors.grey[300]
         }
     }
 
-    return (
-        <>
-            <ComposableMap data-tip="" projectionConfig={{ scale: 200 }}>
-                <ZoomableGroup>
+    try {
+        return (
+            <>
+                <ComposableMap data-tip="" projectionConfig={{ scale: 150 }}>
                     <Graticule stroke={colors.indigo[300]} />
-                    <Geographies geography={geoUrl}>
+                    <Geographies  geography={jsonData} onError={console.log}>
                         {({ geographies }) =>
                             geographies.map(geo => {
                                 const fillColor = getFillColor(geo.properties);
@@ -49,8 +42,9 @@ const MapChart = props => {
                                         onHover(geo.properties);
                                     }}
                                     onMouseLeave={() => {
-                                        onHover("");
+                                        onHover(geo.properties, false);
                                     }}
+                                    onClick={e => { e.preventDefault(); onCountryClick(geo) }}
                                     style={{
                                         hover: {
                                             fill: "#F53",
@@ -58,17 +52,40 @@ const MapChart = props => {
                                         },
                                         pressed: {
                                             fill: "#E42",
-                                            outline: "none"
+                                            outline: "none",
+                                            boxShadow: "none"
+                                        },
+                                        focus: {
+                                            outline: "none",
+                                            boxShadow: "none"
                                         }
                                     }}
                                 />
-                                })
+                            })
                         }
                     </Geographies>
-                </ZoomableGroup>
-            </ComposableMap>
-        </>
-    );
+                </ComposableMap>
+            </>
+        );
+    } catch (error) {
+        console.log("Caught!!!");
+        return <Alert severity="error">
+            <AlertTitle>Error</AlertTitle>
+        This is an error alert — <strong>check it out!</strong>
+        </Alert>
+    }
 };
+
+MapChart.propTypes = {
+    highlightOptions: Proptypes.object,
+    onHover: Proptypes.func,
+    onCountryClick: Proptypes.func
+}
+
+MapChart.defaultProps = {
+    highlightOptions: {},
+    onHover: () => { },
+    onCountryClick: () => { }
+}
 
 export default memo(MapChart);

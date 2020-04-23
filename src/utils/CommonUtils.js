@@ -12,9 +12,30 @@ export const parseDate = (datestring, includeTime = true) => {
 
         return dateOutput + (includeTime ? ", " + timeOutput : "");
     } catch {
-        return "date";
+        return "";
     }
 }
+
+export const asDateObject = (datestring) => {
+    try {
+        const date = new Date(datestring)
+        return date;
+    } catch {
+        return "";
+    }
+}
+
+export const shortNumber = num => {
+    if (num > 1000000000) {
+        return Math.round(num / 100000000) / 10 + "Bn";
+    } else if (num > 1000000) {
+        return Math.round(num / 100000) / 10 + "M";
+    } else if(num > 1000) {
+        return Math.round(num / 100) / 10 + "K";
+    } else {
+        return num;
+    }
+};
 
 export const clamp = (value, start1, stop1, start2, stop2) => (
     (value - start1) / (stop1 - start1) * (stop2 - start2) + start2

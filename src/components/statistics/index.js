@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Typography, makeStyles, colors, CircularProgress, Grid } from "@material-ui/core";
-import { parseDate } from "../../utils/CommonUtils";
+import { Typography, makeStyles, colors, CircularProgress, Grid, Paper } from "@material-ui/core";
+import { parseDate, shortNumber } from "../../utils/CommonUtils";
 import NumberOutput from "../../common/component/NumberOutput";
 import API from "../../utils/RequestUtil";
 
@@ -11,13 +11,13 @@ const useStyles = makeStyles(theme => ({
         marginBottom: 10,
     },
     bolder: {
-        fontWeight: "bolder"
+        fontWeight: "bolder",
+        marginBottom: 5,
     },
     colDisp: {
         display: "flex",
         flexDirection: "column",
         marginBottom: 30,
-        marginRight: 30
     },
     rowDisp: {
         display: "flex"
@@ -54,7 +54,10 @@ const Statistics = props => {
         const { lastUpdate, confirmed, recovered, deaths, active } = state;
         const { todayCases, todayDeaths } = state;
 
-        return <>
+        const shortTodayCases = shortNumber(todayCases);
+        const shortTodayDeaths = shortNumber(todayDeaths);
+
+        return <Paper style={{ padding: "10%" }}>
             <Typography variant="subtitle2" color="primary">
                 <div className={styles.colDisp}>
                     <span style={{ opacity: .7 }}>last updated</span>
@@ -66,15 +69,15 @@ const Statistics = props => {
                 <Grid item xs={6} md={6} lg={6}>
                     <div className={styles.colDisp}>
                         <Typography color="error" className={styles.boldText}>confirmed</Typography>
-                        {todayCases && <Typography component="small" color="error">[+{todayCases}]</Typography>}
                         <Typography color="error" className={styles.bolder}><NumberOutput end={confirmed} /></Typography>
+                        {todayCases && <Typography variant="body2" component="small" color="error">[+{shortTodayCases}]</Typography>}
                     </div>
                 </Grid>
                 <Grid item xs={6} md={4} lg={4}>
                     <div className={styles.colDisp}>
                         <Typography color="textSecondary" className={styles.boldText}>deaths</Typography>
-                        {todayDeaths && <Typography component="small" color="textSecondary">[+{todayDeaths}]</Typography>}
                         <Typography color="textSecondary" className={styles.bolder}><NumberOutput end={deaths} /></Typography>
+                        {todayDeaths && <Typography variant="body2" component="small" color="textSecondary">[+{shortTodayDeaths}]</Typography>}
                     </div>
                 </Grid>
                 <Grid item xs={6} md={6} lg={6}>
@@ -90,7 +93,7 @@ const Statistics = props => {
                     </div>
                 </Grid>
             </Grid>
-        </>
+        </Paper>
     };
 
     return state.lastUpdate ? renderStats() : <CircularProgress />
