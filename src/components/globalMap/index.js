@@ -5,6 +5,7 @@ import { clamp, parseDate } from "../../utils/CommonUtils";
 import ReactTooltip from "react-tooltip";
 import { Typography, CircularProgress, Paper } from "@material-ui/core";
 import { Alert, AlertTitle } from '@material-ui/lab';
+import CustomModal from "../../common/component/CustomModal";
 
 
 const GlobalMap = props => {
@@ -12,6 +13,7 @@ const GlobalMap = props => {
     const [caseInfo, setCaseInfo] = useState(null);
     const [tooltipContent, setTooltipContent] = useState();
     const [error, setError] = useState(null);
+    const [selectedCountry, setSelectedCountry] = useState(null);
 
     useEffect(() => {
         const _maxReduce = (x, y) => {
@@ -97,18 +99,27 @@ const GlobalMap = props => {
         }
     }
 
-    const onCountryClick = console.log;
+    const onCountryClick = (geo) => {
+        setSelectedCountry(geo);
+    };
 
-    const renderGlobalMap = <Paper style={{ padding: 10 }}>
-        <MapComponent
-            highlightOptions={caseInfo}
-            onHover={onHover}
-            onCountryClick={onCountryClick}
-        />
-        <ReactTooltip>{tooltipContent}</ReactTooltip>
-    </Paper>
-
-    console.log(error);
+    const renderGlobalMap = () => {
+        return <>
+            <Paper style={{ padding: 10 }}>
+                <MapComponent
+                    highlightOptions={caseInfo}
+                    onHover={onHover}
+                    onCountryClick={onCountryClick}
+                />
+                <ReactTooltip>{tooltipContent}</ReactTooltip>
+            </Paper>
+            {selectedCountry != null &&
+                <CustomModal open={true} onClose={() => console.log("closing...")}>
+                    <p>I'm a custom Modal</p>
+                </CustomModal>
+            }
+        </>
+    }
 
     if (error) {
         return <Alert severity="error">
@@ -117,7 +128,9 @@ const GlobalMap = props => {
         </Alert>
     }
 
-    return caseInfo ? renderGlobalMap : <CircularProgress />
+    console.log(selectedCountry);
+
+    return caseInfo ? renderGlobalMap() : <CircularProgress />
 }
 
 export default GlobalMap;
